@@ -19,20 +19,28 @@ http.interceptors.request.use((config) => {
 })
 
 let isRefreshing = false
-let pendingQueue: Array<{ resolve: (v?: unknown) => void; reject: (e: unknown) => void }> = []
+type QueueItem = { 
+  resolve: (value: unknown) => void
+  reject: (error: unknown) => void 
+}
+let pendingQueue: QueueItem[] = []
 
-function enqueue<T>(cb: () => Promise<T>) {
+function enqueue<T>(cb: () => Promise<T>): Promise<T> {
   return new Promise<T>((resolve, reject) => {
-    pendingQueue.push({ resolve, reject })
+    pendingQueue.push({ 
+      resolve: resolve as (value: unknown) => void,
+      reject 
+    })
   }).then(() => cb())
 }
 
 function flushQueue(error?: unknown) {
-  pendingQueue.forEach(({ resolve, reject }) => {
-    if (error) reject(error)
-    else resolve()
-  })
+  const queue = pendingQueue
   pendingQueue = []
+  queue.forEach(({ resolve, reject }) => {
+    if (error) reject(error)
+    else resolve(undefined)
+  })
 }
 
 http.interceptors.response.use(

@@ -1,10 +1,11 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import type { ReactElement } from 'react'
 import AdminLayout from '../layouts/AdminLayout'
 import Dashboard from '../pages/Dashboard'
 import Login from '../pages/Login'
 import { useAuthStore } from '../store/auth'
 
-function ProtectedRoute({ children }: { children: JSX.Element }) {
+function ProtectedRoute({ children }: { children: ReactElement }) {
   const isAuthed = useAuthStore((s) => s.isAuthed())
   return isAuthed ? children : <Navigate to="/login" replace />
 }

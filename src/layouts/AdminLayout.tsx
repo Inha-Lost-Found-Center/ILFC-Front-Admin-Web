@@ -5,7 +5,8 @@ import {
     UserOutlined,
 } from '@ant-design/icons'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
-import { ReactNode, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
+import type { ReactNode } from 'react'
 import { useAuthStore } from '../store/auth'
 import { AuthService } from '../services/auth'
 import { message } from 'antd'
