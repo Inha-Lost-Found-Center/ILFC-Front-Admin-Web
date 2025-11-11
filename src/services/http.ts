@@ -22,21 +22,32 @@ http.interceptors.request.use((config) => {
   if (!config.headers['Content-Type']) {
     config.headers['Content-Type'] = 'application/json'
   }
+
+  // 디버깅용 로그 (로그인 요청만)
+  if (config.url?.includes('/users/login')) {
+    console.log('Request config:', {
+      url: config.url,
+      method: config.method,
+      headers: config.headers,
+      data: config.data,
+    })
+  }
+
   return config
 })
 
 let isRefreshing = false
-type QueueItem = { 
+type QueueItem = {
   resolve: (value: unknown) => void
-  reject: (error: unknown) => void 
+  reject: (error: unknown) => void
 }
 let pendingQueue: QueueItem[] = []
 
 function enqueue<T>(cb: () => Promise<T>): Promise<T> {
   return new Promise<T>((resolve, reject) => {
-    pendingQueue.push({ 
+    pendingQueue.push({
       resolve: resolve as (value: unknown) => void,
-      reject 
+      reject
     })
   }).then(() => cb())
 }
@@ -61,7 +72,7 @@ http.interceptors.response.use(
       original._retry = true
       const { tokens, setTokens } = useAuthStore.getState()
       const refreshToken = tokens?.refreshToken
-      
+
       // refreshToken이 없으면 로그아웃 처리
       if (!refreshToken) {
         setTokens(null)

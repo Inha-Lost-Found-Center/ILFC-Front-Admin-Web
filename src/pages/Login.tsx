@@ -14,7 +14,24 @@ export default function Login() {
       message.success('로그인 성공')
       navigate('/dashboard', { replace: true })
     } catch (e: any) {
-      message.error(e?.response?.data?.message || '로그인 실패')
+      console.error('Login error:', e)
+      console.error('Response:', e?.response)
+      console.error('Response data:', e?.response?.data)
+      
+      // 더 자세한 에러 메시지 표시
+      let errorMessage = '로그인에 실패했습니다.'
+      
+      if (e?.response?.status === 401) {
+        errorMessage = e?.response?.data?.message || e?.response?.data?.detail || '이메일 또는 비밀번호가 올바르지 않습니다.'
+      } else if (e?.response?.status === 400) {
+        errorMessage = e?.response?.data?.message || e?.response?.data?.detail || '잘못된 요청입니다.'
+      } else if (e?.response?.status >= 500) {
+        errorMessage = '서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+      } else if (e?.message) {
+        errorMessage = e.message
+      }
+      
+      message.error(errorMessage)
     }
   }
 
