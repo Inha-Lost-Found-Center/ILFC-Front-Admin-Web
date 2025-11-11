@@ -3,6 +3,8 @@ import {
     DashboardOutlined,
     LogoutOutlined,
     UserOutlined,
+    PlusOutlined,
+    UnorderedListOutlined,
 } from '@ant-design/icons'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useMemo, useState } from 'react'
@@ -26,7 +28,12 @@ export default function AdminLayout({ headerRight }: AdminLayoutProps) {
   const setTokens = useAuthStore((s) => s.setTokens)
 
     const selectedKeys = useMemo(() => {
-        if (location.pathname.startsWith('/dashboard')) return ['dashboard']
+        const path = location.pathname
+        if (path.startsWith('/dashboard')) return ['dashboard']
+        if (path.startsWith('/items')) {
+            if (path.includes('/register')) return ['items-register']
+            return ['items-list']
+        }
         return []
     }, [location.pathname])
 
@@ -86,6 +93,16 @@ export default function AdminLayout({ headerRight }: AdminLayoutProps) {
                             key: 'dashboard',
                             icon: <DashboardOutlined />,
                             label: <Link to="/dashboard">대시보드</Link>,
+                        },
+                        {
+                            key: 'items-list',
+                            icon: <UnorderedListOutlined />,
+                            label: <Link to="/items">분실물 목록</Link>,
+                        },
+                        {
+                            key: 'items-register',
+                            icon: <PlusOutlined />,
+                            label: <Link to="/items/register">분실물 등록</Link>,
                         },
                     ]}
                 />
