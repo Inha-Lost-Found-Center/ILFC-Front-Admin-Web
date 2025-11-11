@@ -6,6 +6,9 @@ export const http = axios.create({
   // Bearer 토큰 인증을 사용하므로 withCredentials는 필요 없음
   // CORS 이슈가 있다면 백엔드 설정이 완료될 때까지 false로 설정
   withCredentials: import.meta.env.VITE_USE_CREDENTIALS === 'true',
+  headers: {
+    'Content-Type': 'application/json',
+  },
 })
 
 // Authorization 헤더 주입
@@ -14,6 +17,10 @@ http.interceptors.request.use((config) => {
   if (token) {
     config.headers = config.headers ?? {}
     config.headers.Authorization = `Bearer ${token}`
+  }
+  // Content-Type이 설정되지 않은 경우 기본값 설정
+  if (!config.headers['Content-Type']) {
+    config.headers['Content-Type'] = 'application/json'
   }
   return config
 })
