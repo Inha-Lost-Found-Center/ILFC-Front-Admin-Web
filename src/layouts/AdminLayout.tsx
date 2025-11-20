@@ -5,6 +5,8 @@ import {
     UserOutlined,
     PlusOutlined,
     UnorderedListOutlined,
+    TagsOutlined,
+    HistoryOutlined,
 } from '@ant-design/icons'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useMemo, useState } from 'react'
@@ -34,6 +36,8 @@ export default function AdminLayout({ headerRight }: AdminLayoutProps) {
             if (path.includes('/register')) return ['items-register']
             return ['items-list']
         }
+        if (path.startsWith('/tags')) return ['tags']
+        if (path.startsWith('/pickups')) return ['pickups']
         return []
     }, [location.pathname])
 
@@ -103,6 +107,16 @@ export default function AdminLayout({ headerRight }: AdminLayoutProps) {
                             key: 'items-register',
                             icon: <PlusOutlined />,
                             label: <Link to="/items/register">분실물 등록</Link>,
+                        },
+                        {
+                            key: 'tags',
+                            icon: <TagsOutlined />,
+                            label: <Link to="/tags">태그 관리</Link>,
+                        },
+                        {
+                            key: 'pickups',
+                            icon: <HistoryOutlined />,
+                            label: <Link to="/pickups/logs">픽업 로그</Link>,
                         },
                     ]}
                 />
