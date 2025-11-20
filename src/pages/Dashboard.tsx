@@ -1,3 +1,4 @@
+import { memo, useCallback, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Card, Row, Col, Statistic, Skeleton, Image, Tag, Space, Typography, Empty } from 'antd'
 import {
@@ -13,6 +14,7 @@ import type { Item, ItemStatus } from '../types/item'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'dayjs/locale/ko'
+import { useNavigate } from 'react-router-dom'
 
 dayjs.extend(relativeTime)
 dayjs.locale('ko')
@@ -25,15 +27,19 @@ const statusConfig: Record<ItemStatus, { color: string; icon: React.ReactNode }>
     '찾음': { color: 'green', icon: <CheckCircleOutlined /> },
 }
 
-function ItemCard({ item }: { item: Item }) {
+const ItemCard = memo(function ItemCard({ item, onSelect }: { item: Item; onSelect: (itemId: number) => void }) {
     const statusInfo = statusConfig[item.status]
 
     return (
         <Card
             hoverable
             style={{ marginBottom: 16 }}
+            onClick={() => onSelect(item.id)}
             cover={
-                <div style={{ height: 200, overflow: 'hidden', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div
+                    style={{ height: 200, overflow: 'hidden', background: '#f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                    onClick={(e) => e.stopPropagation()}
+                >
                     <Image
                         src={item.photo_url}
                         alt={`Item ${item.id}`}
@@ -80,27 +86,39 @@ function ItemCard({ item }: { item: Item }) {
             </Space>
         </Card>
     )
-}
+})
 
 export default function Dashboard() {
+    const navigate = useNavigate()
     const { data: items, isLoading, error } = useQuery({
         queryKey: ['items'],
         queryFn: ItemsService.getAll,
         staleTime: 1000 * 30, // 30초
     })
 
-    const stats = items
-        ? {
+    const stats = useMemo(() => {
+        if (!items) return { total: 0, stored: 0, reserved: 0, found: 0 }
+        return {
             total: items.length,
             stored: items.filter((i) => i.status === '보관').length,
             reserved: items.filter((i) => i.status === '예약').length,
             found: items.filter((i) => i.status === '찾음').length,
         }
-        : { total: 0, stored: 0, reserved: 0, found: 0 }
+    }, [items])
 
-    const recentItems = items ? [...items].sort((a, b) =>
-        dayjs(b.registered_at).valueOf() - dayjs(a.registered_at).valueOf()
-    ).slice(0, 10) : []
+    const recentItems = useMemo(() => {
+        if (!items) return []
+        return [...items]
+            .sort((a, b) => dayjs(b.registered_at).valueOf() - dayjs(a.registered_at).valueOf())
+            .slice(0, 10)
+    }, [items])
+
+    const handleSelect = useCallback(
+        (itemId: number) => {
+            navigate(`/items/${itemId}`)
+        },
+        [navigate]
+    )
 
     if (error) {
         return (
@@ -177,7 +195,7 @@ export default function Dashboard() {
                     <Row gutter={16}>
                         {recentItems.map((item) => (
                             <Col xs={24} sm={12} lg={6} key={item.id}>
-                                <ItemCard item={item} />
+                                <ItemCard item={item} onSelect={handleSelect} />
                             </Col>
                         ))}
                     </Row>
