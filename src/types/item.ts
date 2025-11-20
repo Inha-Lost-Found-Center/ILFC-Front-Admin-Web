@@ -11,6 +11,7 @@ export type Item = {
   location: string
   status: ItemStatus
   registered_at: string
+  description?: string | null
   tags: Tag[]
 }
 
