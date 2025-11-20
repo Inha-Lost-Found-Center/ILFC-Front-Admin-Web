@@ -27,5 +27,8 @@ export const ItemsService = {
   delete(id: number) {
     return http.delete<void>(`/items/${id}`).then((r) => r.data)
   },
+  adminRegister(data: { photo_url: string; device_name?: string | null; location: string; description: string; tags: string[] }) {
+    return http.post<Item>('/admin/items', data).then((r) => r.data)
+  },
 }
 
